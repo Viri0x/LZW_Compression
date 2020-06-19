@@ -285,7 +285,7 @@ def compression(args, lines):
     with_line = "Size after LZW compression: " + str(with_c) + " bits\n"
     lzw_out(filename, with_line)
     rate = with_c / without_c
-    rate_line = "Compression ratio: " + "{:.3f}".format(rate)
+    rate_line = "Compression ratio: " + "{:.3f}".format(rate) + "\n"
     lzw_out(filename, rate_line)
 
 
@@ -340,7 +340,7 @@ def uncompression(args, lines):
     return output
 
 
-# ### Parsing Arguments
+# ### MAIN FUNCTION
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="LWZ Un/Compressor")
@@ -357,9 +357,10 @@ if __name__ == "__main__":
     # ### Read file
     if (not args.p):
         print("No path")
-    else:
-        f = open(args.p, "r")
-        lines = f.readlines()
+        exit()
+
+    f = open(args.p, "r")
+    lines = f.readlines()
 
     if (args.c):
         print("compression on file ", args.p)
