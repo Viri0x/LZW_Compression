@@ -5,7 +5,6 @@
 from argparse import ArgumentParser
 import numpy as np
 import pandas as pd
-import os
 
 #---------------------
 #### SIDE FUNCTIONS
@@ -133,7 +132,6 @@ def add_strings(lines):
 def find_size(n):
     res = np.log2(n)
     res = int(np.ceil(res))
-    #res = format(n, 'b')
 
     return res
 
