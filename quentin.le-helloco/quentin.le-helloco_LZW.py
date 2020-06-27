@@ -5,6 +5,7 @@
 from argparse import ArgumentParser
 import numpy as np
 import pandas as pd
+import csv
 
 #---------------------
 #### SIDE FUNCTIONS
@@ -43,29 +44,18 @@ def get_dic(lines):
 def dico_to_csv(dico, filename):
     csv_name = filename + "_dico.csv"
 
-    f = open(csv_name, "w+")
-    csv = ""
-    length_dico = len(dico)
+    file = open(csv_name, "w+")
 
-    for i in range(length_dico):
-        csv += dico[i]
-
-        if i < length_dico - 1:
-            csv += ","
-
-    f.write(csv + "\n")
-
+    csv_w = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    csv_w.writerow(dico)
 
 # #### Write the csv table
-def csv_table(data, filename, first=False):
-    csv_name = filename + "_LZWtable.csv"
+def csv_table(data, csv_w, first=False):
 
     if first:
-        f = open(csv_name, "w+")
-        f.write("Buffer,Input,New sequence,Address,Output\n")
+        csv_w.writerow(["Buffer", "Input", "New sequence", "Address", "Output"])
     else:
-        f = open(csv_name, "a")
-        f.write(data[0] + "," + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "\n")
+        csv_w.writerow([data[0], data[1], data[2], data[3], data[4]])
 
 
 # ##### Write the output file
@@ -151,6 +141,9 @@ def compression(args, lines):
 
     #Get filename without extention
     filename = args.p.split('/')[-1][:-4]
+    csv_name = filename + "_LZWtable.csv"
+    file = open(csv_name, "w")
+    csv_w = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
     #Get dico from file
     dico = get_dic(lines)
@@ -176,8 +169,8 @@ def compression(args, lines):
         add_size = False
         #Initialisation Step
         if buffer == [] and input[i] in dico:
-            csv_table(["", "", "", "", ""], filename, first=True)
-            csv_table(["", input[0], "", "", ""], filename)
+            csv_table(["", "", "", "", ""], csv_w, first=True)
+            csv_table(["", input[0], "", "", ""], csv_w)
 
             buffer.append(input[i])
         else:
@@ -219,7 +212,7 @@ def compression(args, lines):
                         #print(find_size(dico.index(add_strings(buffer) + curr_char)), " ", size)
                         add_size = True
                         out = "@[%s]=%d" % ("%", dico.index("%"))
-                        csv_table([buffer_seq, curr_char, seq, idx, out], filename)
+                        csv_table([buffer_seq, curr_char, seq, idx, out], csv_w)
                         output+= index_to_bit(dico.index("%"), size)
                         with_c += size
                         size += 1
@@ -228,7 +221,7 @@ def compression(args, lines):
             buffer.append(curr_char)
 
             if not add_size:
-                csv_table([buffer_seq, curr_char, seq, idx, out], filename)
+                csv_table([buffer_seq, curr_char, seq, idx, out], csv_w)
 
     lzw_out(filename, output + "\n", create=True)
     without_line = "Size before LZW compression: " + str(without_c) + " bits\n"
